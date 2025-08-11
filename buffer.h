@@ -1,6 +1,10 @@
+#pragma once
+
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -8,20 +12,20 @@ class Buffer {
  public:
   Buffer() = default;
   Buffer(std::initializer_list<int> init_list) : m_buffer(init_list) {};
-
   ~Buffer() = default;
-  // Чтение. Должно давать копию, или просто выводить в stdout?
-  // Я сделаю просто вывод в stdout
-  void Read();
-  void Insert(int element);
-  // void InsertByIndex(std::string str, int ind);
-  void DeleteByIndex(int ind);
-  // DeleteByValue???
+
+  std::string Read() const;
+
+  struct CountResult {
+    size_t even;
+    size_t odd;
+  };
+  CountResult Count() const;
+
+  void Insert(int index, int element);
+  void Delete(int index);
   void Sort(bool desc);  // desc = True - сортировка по убыванию, desc = False -
                          // по возрастанию
-  // не ясно, что конкретно должен делать метод. В моём случае он просто выводит
-  // информацию.
-  void Count();
   void Reverse();
 
  private:

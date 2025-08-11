@@ -1,5 +1,6 @@
 CXX = g++
-SRCS = main.cpp buffer.cpp
+FLAGS = -Wall -Werror -Wextra
+SRCS = main.cpp buffer.cpp program.cpp
 HEADERS = buffer.h
 EXEC = main.out
 

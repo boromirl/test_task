@@ -2,3 +2,4 @@ notes.txt
 .clang-format
 *.out
 .vscode
+test.cpp

@@ -1,26 +1,36 @@
 #include "buffer.h"
 
-void Buffer::Read() {
-  if (m_buffer.empty()) {
-    std::cout << "<The buffer is empty>\n";
-    return;
-  }
+std::string Buffer::Read() const {
+  std::stringstream ss;
+
   // output format:
   // [0]: hello
   // [1]: world
-  for (int i = 0; i < m_buffer.size(); i++) {
-    std::cout << "[" << i << "]: " << m_buffer[i] << "\n";
+  for (size_t i = 0; i < m_buffer.size(); i++) {
+    ss << "[" << i << "]: " << m_buffer[i] << "\n";
   }
+
+  return ss.str();
 }
 
-void Buffer::Insert(int element) { m_buffer.push_back(element); }
+void Buffer::Insert(int index, int element) {
+  if (index < 0 || index > m_buffer.size()) {
+    throw std::out_of_range("Index " + std::to_string(index) +
+                            " is out of bounds for buffer size " +
+                            std::to_string(m_buffer.size()));
+  }
 
-void Buffer::DeleteByIndex(int ind) {
-  if (ind >= m_buffer.size()) {
-    std::cerr << "Error: index " << ind << " out of bounds\n";
+  m_buffer.insert(m_buffer.begin() + index, element);
+}
+
+void Buffer::Delete(int index) {
+  if (index < 0 || index >= m_buffer.size()) {
+    throw std::out_of_range("Index " + std::to_string(index) +
+                            " is out of bounds for buffer size " +
+                            std::to_string(m_buffer.size()));
     return;
   }
-  m_buffer.erase(m_buffer.begin() + ind);
+  m_buffer.erase(m_buffer.begin() + index);
 }
 
 void Buffer::Reverse() { std::reverse(m_buffer.begin(), m_buffer.end()); }
@@ -33,17 +43,23 @@ void Buffer::Sort(bool desc) {
   }
 }
 
-void Buffer::Count() {
-  int even = 0;
-  int odd = 0;
+Buffer::CountResult Buffer::Count() const {
+  size_t even = 0;
+  size_t odd = 0;
 
-  for (int i = 0; i < m_buffer.size(); i++) {
+  for (size_t i = 0; i < m_buffer.size(); i++) {
     if (i % 2 == 0)
       even++;
     else
       odd++;
   }
 
-  std::cout << "Elements in even positions: " << even << "\n";
-  std::cout << "Elements in odd positions: " << odd << "\n";
+  return {even, odd};
+
+  /* можно заменить на:
+   even = (m_buffer.size() + 1) / 2;
+   odd = (m_buffer.size() / 2);
+
+   return {even, odd};
+  */
 }
