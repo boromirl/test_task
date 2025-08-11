@@ -99,24 +99,31 @@ void Program::WriterJob() {
       switch (request.cmd) {
         case Command::INSERT:
           buffer.Insert(request.index, request.value);
+          LOG_INFO("Insert " + std::to_string(request.value) + " at index " +
+                   std::to_string(request.index));
           break;
         case Command::DELETE:
           buffer.Delete(request.index);
+          LOG_INFO("Deleted element at index " + std::to_string(request.index));
           break;
         case Command::SORT_ASC:
           buffer.Sort(false);
+          LOG_INFO("Sort elements in ascending order");
           break;
         case Command::SORT_DESC:
           buffer.Sort(true);
+          LOG_INFO("Sort elements in descending order");
           break;
         case Command::REVERSE:
           buffer.Reverse();
+          LOG_INFO("Reversed the buffer");
           break;
         default:
           break;
       }
     } catch (const std::exception& e) {
       SafePrint(e.what(), true);
+      LOG_ERROR(e.what());
     }
   }
 }

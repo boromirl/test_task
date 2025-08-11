@@ -9,6 +9,13 @@
 #include <thread>
 
 #include "buffer.h"
+#include "logger.h"
+
+// logger macros
+#define LOG_DEBUG(msg) logger.log(Logger::LogLevel::DEBUG, msg)
+#define LOG_INFO(msg) logger.log(Logger::LogLevel::INFO, msg)
+#define LOG_ERROR(msg) logger.log(Logger::LogLevel::ERROR, msg)
+#define LOG_WARNING(msg) logger.log(Logger::LogLevel::WARNING, msg)
 
 enum class CommandType { READ, WRITE, EXIT };
 enum class Command {
@@ -62,4 +69,6 @@ class Program {
 
   // вызывается в начале программы
   void WelcomeMsg();
+
+  Logger logger;
 };

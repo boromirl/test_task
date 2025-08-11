@@ -3,3 +3,4 @@ notes.txt
 *.out
 .vscode
 test.cpp
+*.log
