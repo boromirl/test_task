@@ -38,9 +38,7 @@ void Program::Run() {
 
       // если удаётся считать аргументы
       if (ss >> index >> value) {
-        std::lock_guard<std::mutex> lock(writerMutex);
-        writerQueue.push({CommandType::WRITE, Command::INSERT, index, value});
-        writerCV.notify_one();
+        AddWriterRequest({CommandType::WRITE, Command::INSERT, index, value});
       } else {
         SafePrint(
             "Error: wrong arguments for insert. Usage: insert <index> <value>",
@@ -49,9 +47,7 @@ void Program::Run() {
     } else if (command == "delete") {
       int index;
       if (ss >> index) {
-        std::lock_guard<std::mutex> lock(writerMutex);
-        writerQueue.push({CommandType::WRITE, Command::DELETE, index, 0});
-        writerCV.notify_one();
+        AddWriterRequest({CommandType::WRITE, Command::DELETE, index, 0});
       } else {
         SafePrint("Error: wrong arguments for delete. Usage: delete <index>",
                   true);
@@ -59,11 +55,10 @@ void Program::Run() {
     } else if (command == "sort") {
       std::string order;
       if (ss >> order) {
-        std::lock_guard<std::mutex> lock(writerMutex);
         if (order == "asc") {
-          writerQueue.push({CommandType::WRITE, Command::SORT_ASC, 0, 0});
+          AddWriterRequest({CommandType::WRITE, Command::SORT_ASC, 0, 0});
         } else if (order == "desc") {
-          writerQueue.push({CommandType::WRITE, Command::SORT_DESC, 0, 0});
+          AddWriterRequest({CommandType::WRITE, Command::SORT_DESC, 0, 0});
         } else {
           SafePrint(
               "Error: wrong arguments for sort. Usage: sort asc OR sort desc",
@@ -74,17 +69,11 @@ void Program::Run() {
         SafePrint("");
       }
     } else if (command == "reverse") {
-      std::lock_guard<std::mutex> lock(writerMutex);
-      writerQueue.push({CommandType::WRITE, Command::REVERSE, 0, 0});
-      writerCV.notify_one();
+      AddWriterRequest({CommandType::WRITE, Command::REVERSE, 0, 0});
     } else if (command == "read") {
-      std::lock_guard<std::mutex> lock(readerMutex);
-      readerQueue.push({CommandType::READ, Command::READ, 0, 0});
-      readerCV.notify_one();
+      AddReaderRequest({CommandType::READ, Command::READ, 0, 0});
     } else if (command == "count") {
-      std::lock_guard<std::mutex> lock(readerMutex);
-      readerQueue.push({CommandType::READ, Command::COUNT, 0, 0});
-      readerCV.notify_one();
+      AddReaderRequest({CommandType::READ, Command::COUNT, 0, 0});
     } else {
       SafePrint("Error: " + command + " is not a command.", true);
     }
