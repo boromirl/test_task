@@ -23,64 +23,49 @@ void Program::WelcomeMsg() {
 void Program::Run() {
   WelcomeMsg();
 
-  std::string line;
-  // main input/output loop
-  while (std::getline(std::cin, line)) {
-    std::stringstream ss(line);
-    std::string command;
-    ss >> command;
+  while (true) {
+    std::string input;
+    std::getline(std::cin, input);
 
-    if (command == "exit") break;
+    Request req = ParseRequest(input);
 
-    if (command == "insert") {
-      std::string indexStr, valueStr;
-      int index, value;
+    if (req.ct == CommandType::EXIT) {
+      LOG_INFO("EXIT request received");
+      break;
+    }
 
-      // если удаётся считать аргументы
-      if (ss >> index >> value) {
-        AddWriterRequest({CommandType::WRITE, Command::INSERT, index, value});
-      } else {
-        SafePrint(
-            "Error: wrong arguments for insert. Usage: insert <index> <value>",
-            true);
+    if (req.ct == CommandType::INVALID) {
+      std::string errMsg;
+      switch (req.cmd) {
+        case Command::INSERT:
+          errMsg = "Invalid insert request. Usage: insert <index> <value>";
+          break;
+        case Command::DELETE:
+          errMsg = "Invalid delete request. Usage: delete <index>";
+          break;
+        case Command::SORT_ASC:
+        case Command::SORT_DESC:
+          errMsg = "Invalid sort request. Usage: sort asc OR sort desc";
+          break;
+        default:
+          errMsg = "Invalid request: " + input;
       }
-    } else if (command == "delete") {
-      int index;
-      if (ss >> index) {
-        AddWriterRequest({CommandType::WRITE, Command::DELETE, index, 0});
-      } else {
-        SafePrint("Error: wrong arguments for delete. Usage: delete <index>",
-                  true);
-      }
-    } else if (command == "sort") {
-      std::string order;
-      if (ss >> order) {
-        if (order == "asc") {
-          AddWriterRequest({CommandType::WRITE, Command::SORT_ASC, 0, 0});
-        } else if (order == "desc") {
-          AddWriterRequest({CommandType::WRITE, Command::SORT_DESC, 0, 0});
-        } else {
-          SafePrint(
-              "Error: wrong arguments for sort. Usage: sort asc OR sort desc",
-              true);
-        }
-        writerCV.notify_one();
-      } else {
-        SafePrint("");
-      }
-    } else if (command == "reverse") {
-      AddWriterRequest({CommandType::WRITE, Command::REVERSE, 0, 0});
-    } else if (command == "read") {
-      AddReaderRequest({CommandType::READ, Command::READ, 0, 0});
-    } else if (command == "count") {
-      AddReaderRequest({CommandType::READ, Command::COUNT, 0, 0});
-    } else {
-      SafePrint("Error: " + command + " is not a command.", true);
+
+      SafePrint(errMsg);
+      LOG_ERROR(errMsg);
+    }
+
+    if (req.ct == CommandType::READ) {
+      AddReaderRequest(req);
+    } else if (req.ct == CommandType::WRITE) {
+      AddWriterRequest(req);
     }
   }
 }
 
 void Program::WriterJob() {
+  LOG_INFO("Writer thread started");
+
   while (true) {
     Request request;
     {
@@ -126,9 +111,13 @@ void Program::WriterJob() {
       LOG_ERROR(e.what());
     }
   }
+
+  LOG_INFO("Writer thread exiting");
 }
 
 void Program::ReaderJob() {
+  LOG_INFO("Reader thread started");
+
   while (true) {
     Request request;
     {
@@ -159,9 +148,66 @@ void Program::ReaderJob() {
         break;
     }
   }
+  LOG_INFO("Reader thread exiting");
+}
+
+Request Program::ParseRequest(const std::string& line) {
+  std::istringstream iss(line);
+  std::string commandStr;
+  iss >> commandStr;
+
+  Request req{CommandType::INVALID, Command::INVALID, 0, 0};
+
+  if (commandStr.empty()) {
+    return req;
+  }
+
+  // при неправильном вводе команды, устанавливаем CommandType в INVALID, но
+  // сохраняем саму команду Command, чтобы потом выдать сообщение об ошибке в
+  // конкретной ошибке
+  if (commandStr == "insert") {
+    req.cmd = Command::INSERT;
+    if (iss >> req.index >> req.value) {
+      req.ct = CommandType::WRITE;
+    }
+
+  } else if (commandStr == "delete") {
+    req.cmd = Command::DELETE;
+    if (iss >> req.index) {
+      req.ct = CommandType::WRITE;
+    }
+  } else if (commandStr == "sort") {
+    std::string order;
+    req.cmd = Command::SORT_ASC;
+
+    if (iss >> order) {
+      if (order == "asc") {
+        req.cmd = Command::SORT_ASC;
+        req.ct = CommandType::WRITE;
+      } else if (order == "desc") {
+        req.ct = CommandType::WRITE;
+        req.cmd = Command::SORT_DESC;
+      }
+    }
+  } else if (commandStr == "reverse") {
+    req.ct = CommandType::WRITE;
+    req.cmd = Command::REVERSE;
+  } else if (commandStr == "read") {
+    req.ct = CommandType::READ;
+    req.cmd = Command::READ;
+  } else if (commandStr == "count") {
+    req.ct = CommandType::READ;
+    req.cmd = Command::COUNT;
+  } else if (commandStr == "exit") {
+    req.cmd = Command::EXIT;
+    req.ct = CommandType::EXIT;
+  }
+
+  return req;
 }
 
 Program::Program() {
+  LOG_INFO("Program started");
   writerThread = std::thread(&Program::WriterJob, this);
   readerThread = std::thread(&Program::ReaderJob, this);
 }
@@ -173,6 +219,7 @@ Program::~Program() {
 
   writerThread.join();
   readerThread.join();
+  LOG_INFO("Program exiting");
 }
 
 void Program::AddWriterRequest(Request req) {

@@ -17,7 +17,7 @@
 #define LOG_ERROR(msg) logger.log(Logger::LogLevel::ERROR, msg)
 #define LOG_WARNING(msg) logger.log(Logger::LogLevel::WARNING, msg)
 
-enum class CommandType { READ, WRITE, EXIT };
+enum class CommandType { READ, WRITE, EXIT, INVALID };
 enum class Command {
   READ,
   COUNT,
@@ -26,7 +26,8 @@ enum class Command {
   REVERSE,
   SORT_ASC,
   SORT_DESC,
-  EXIT
+  EXIT,
+  INVALID
 };
 
 struct Request {
@@ -65,7 +66,8 @@ class Program {
   std::mutex outputMutex;  // mutex for the standard output
 
   // thread-safe output to standard output
-  void SafePrint(const std::string &str, bool isError = false);
+  void SafePrint(const std::string& str, bool isError = false);
+  Request ParseRequest(const std::string& line);
 
   // вызывается в начале программы
   void WelcomeMsg();
