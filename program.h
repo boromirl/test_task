@@ -67,6 +67,7 @@ class Program {
 
   // thread-safe output to standard output
   void SafePrint(const std::string& str, bool isError = false);
+
   Request ParseRequest(const std::string& line);
 
   // вызывается в начале программы

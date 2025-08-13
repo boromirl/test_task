@@ -1,7 +1,7 @@
 CXX = g++
 FLAGS = -Wall -Werror -Wextra
 SRCS = main.cpp buffer.cpp program.cpp
-HEADERS = buffer.h
+HEADERS = buffer.h logger.h program.h
 EXEC = main.out
 
 all: main
