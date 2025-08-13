@@ -51,11 +51,11 @@ void Program::Run() {
           errMsg = "Invalid request: " + input;
       }
 
-      SafePrint(errMsg);
+      SafePrint(errMsg, true);
       LOG_ERROR(errMsg);
     }
 
-    if (req.ct == CommandType::READ) {
+    else if (req.ct == CommandType::READ) {
       AddReaderRequest(req);
     } else if (req.ct == CommandType::WRITE) {
       AddWriterRequest(req);
@@ -93,11 +93,11 @@ void Program::WriterJob() {
           break;
         case Command::SORT_ASC:
           buffer.Sort(false);
-          LOG_INFO("Sort elements in ascending order");
+          LOG_INFO("Sorted elements in ascending order");
           break;
         case Command::SORT_DESC:
           buffer.Sort(true);
-          LOG_INFO("Sort elements in descending order");
+          LOG_INFO("Sorted elements in descending order");
           break;
         case Command::REVERSE:
           buffer.Reverse();
@@ -163,7 +163,7 @@ Request Program::ParseRequest(const std::string& line) {
   }
 
   // при неправильном вводе команды, устанавливаем CommandType в INVALID, но
-  // сохраняем саму команду Command, чтобы потом выдать сообщение об ошибке в
+  // сохраняем саму команду Command, чтобы потом выдать сообщение о
   // конкретной ошибке
   if (commandStr == "insert") {
     req.cmd = Command::INSERT;
@@ -226,10 +226,12 @@ void Program::AddWriterRequest(Request req) {
   std::lock_guard<std::mutex> lock(writerMutex);
   writerQueue.push(req);
   writerCV.notify_one();
+  LOG_INFO("Writer request added to queue");
 }
 
 void Program::AddReaderRequest(Request req) {
   std::lock_guard<std::mutex> lock(readerMutex);
   readerQueue.push(req);
   readerCV.notify_one();
+  LOG_INFO("Reader request added to queue");
 }

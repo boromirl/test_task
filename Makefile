@@ -1,13 +1,13 @@
 CXX = g++
-FLAGS = -Wall -Werror -Wextra
-SRCS = main.cpp buffer.cpp program.cpp
-HEADERS = buffer.h logger.h program.h
+CXXFLAGS = -std=c++17  -pthread
+SRCS = src/main.cpp src/buffer.cpp src/program.cpp
+HEADERS = src/buffer.h src/logger.h src/program.h
 EXEC = main.out
 
 all: main
 
 main:
-	$(CXX) $(SRCS) -o $(EXEC)
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC)
 
 clean:
 	rm -rf $(EXEC)

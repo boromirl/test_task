@@ -1,3 +1,5 @@
+#pragma once
+
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -7,8 +9,7 @@ class Logger {
  public:
   enum class LogLevel { INFO, WARNING, ERROR, DEBUG };
 
-  Logger(const std::string& filename = "program.log") {
-    m_filename = filename;
+  Logger(const std::string& filename = "program.log") : m_filename(filename) {
     logFile = std::ofstream(filename, std::ios::app);
     if (!logFile.is_open()) {
       throw std::runtime_error("Failed to open log file");

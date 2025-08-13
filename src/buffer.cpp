@@ -13,7 +13,7 @@ std::string Buffer::Read() const {
   return ss.str();
 }
 
-void Buffer::Insert(int index, int element) {
+void Buffer::Insert(size_t index, int element) {
   if (index < 0 || index > m_buffer.size()) {
     throw std::out_of_range("Index " + std::to_string(index) +
                             " is out of bounds for buffer size " +
@@ -23,7 +23,7 @@ void Buffer::Insert(int index, int element) {
   m_buffer.insert(m_buffer.begin() + index, element);
 }
 
-void Buffer::Delete(int index) {
+void Buffer::Delete(size_t index) {
   if (index < 0 || index >= m_buffer.size()) {
     throw std::out_of_range("Index " + std::to_string(index) +
                             " is out of bounds for buffer size " +
@@ -36,10 +36,10 @@ void Buffer::Delete(int index) {
 void Buffer::Reverse() { std::reverse(m_buffer.begin(), m_buffer.end()); }
 
 void Buffer::Sort(bool desc) {
-  std::sort(m_buffer.begin(), m_buffer.end());
-
   if (desc) {
-    Reverse();
+    std::sort(m_buffer.begin(), m_buffer.end(), std::greater<int>());
+  } else {
+    std::sort(m_buffer.begin(), m_buffer.end());
   }
 }
 

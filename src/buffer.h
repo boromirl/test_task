@@ -22,13 +22,12 @@ class Buffer {
   };
   CountResult Count() const;
 
-  void Insert(int index, int element);
-  void Delete(int index);
+  void Insert(size_t index, int element);
+  void Delete(size_t index);
   void Sort(bool desc);  // desc = True - сортировка по убыванию, desc = False -
                          // по возрастанию
   void Reverse();
 
  private:
-  // есть небольшое подозрение, что лучше сделать свой массив, а не std::vector
   std::vector<int> m_buffer;
 };
