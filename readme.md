@@ -13,6 +13,7 @@
 * Таргеты Makefile:
     * make clean - удалить временные файлы
     * make rebuild - пересобрать проект
+    * make valgrind - запустить с проверкой утечек с помощью valgrind
 
 * Исполняемый файл:
     * ./main.out

@@ -22,11 +22,12 @@ class Buffer {
   };
   CountResult Count() const;
 
-  void Insert(size_t index, int element);
-  void Delete(size_t index);
+  void Insert(int index, int element);
+  void Delete(int index);
   void Sort(bool desc);  // desc = True - сортировка по убыванию, desc = False -
                          // по возрастанию
   void Reverse();
+  size_t GetSize() { return m_buffer.size(); };
 
  private:
   std::vector<int> m_buffer;

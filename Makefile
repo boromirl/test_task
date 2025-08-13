@@ -1,5 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17  -pthread
+CXXFLAGS = -std=c++17 -Wall -Werror -Wextra -pthread
+SRC_DIR = src
 SRCS = src/main.cpp src/buffer.cpp src/program.cpp
 HEADERS = src/buffer.h src/logger.h src/program.h
 EXEC = main.out
@@ -13,3 +14,6 @@ clean:
 	rm -rf $(EXEC)
 
 rebuild: clean all
+
+valgrind: main
+	valgrind --leak-check=full ./$(EXEC)
